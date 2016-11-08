@@ -1,1 +1,56 @@
+Some exchange powershell commands I often use
 
+* copy backup pst
+
+New-MailboxExportRequest -Mailbox Administrator -FilePath "\\otherserver\PST_backups\Administrator.pst"
+
+Get-MailboxExportRequest | Get-MailboxExportRequestStatistics
+
+Get-MailboxExportRequest | Remove-MailboxExportRequest
+
+foreach ($i in (Get-Mailbox -server exchangeserver)) { New-MailboxExportRequest -Mailbox $i -FilePath "\\otherserver\PST_backups\$($i.Alias).pst" }
+
+
+http://www.stevieg.org/2010/07/using-the-exchange-2010-sp1-mailbox-export-features-for-mass-exports-to-pst/
+
+
+* Remove disconnected mailbox
+
+http://www.howexchangeworks.com/2010/09/purge-disconnected-or-soft-deleted.html
+
+
+* Get database sizes
+Get-MailboxDatabase -Status | select ServerName,Name,DatabaseSize
+
+*get login times
+
+Get-LogonStatistics -Server "mailbox Server" | where {$_.clientname -eq "cas Server"}| ft username,servername,clientname
+
+
+Message log:
+Get-MessageTrackingLog -Recipients user@example.com -Start "07/13/2012 00:00:00"
+
+Antispam
+Set internal SMTP servers
+C:\Windows\system32>Set-TransportConfig -InternalAMTPServers
+http://technet.microsoft.com/en-us/library/aa995953
+
+Get-AgentLog -StartDate "4/23/2010 12:43 PM" -EndDate "4/23/2010 12:45 PM"
+
+get-contentfilterconfig
+
+
+
+Get-Mailbox |Search-Mailbox -Searchquery 'Subject:"Staff Plan 2013 2014"' -DeleteContent
+
+Get-Mailbox |Search-Mailbox -Searchquery 'Subject:"Staff Plan 2013 2014" and Received:"2012/09/26"' -Targetmailbox greylina -targetfolder user
+
+
+
+ativesync
+$UserList = Get-CASMailbox -Filter {hasactivesyncdevicepartnership -eq $true -and -not displayname -like "CAS_{*"}| Get-Mailbox
+
+$UserList | foreach { Get-ActiveSyncDeviceStatistics -Mailbox $_}
+
+
+Get-MailboxStatistics -Server ESP-BR-EX2010 | Sort LastLogonTime -Descending
